@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+name="ca-certificates"
+version="20230106"
+url="https://salsa.debian.org/debian/ca-certificates"
+description="Common CA certificates"
+source="https://gitlab.alpinelinux.org/alpine/ca-certificates/-/archive/$version/ca-certificates-$version.tar.gz"
+depends=""
+group="app.misc"
+setup()
+{
+cd $SOURCEDIR
+cp $PACKAGEDIR/ca-certificates.sysconf ./
+cp $PACKAGEDIR/MEB_SERTIFIKASI.crt ./
+}
+build(){
+    make $jobs
+}
+
+package(){
+    make install DESTDIR=${DESTDIR} $jobs
+    # openssl conflict fix
+    rm -f ${DESTDIR}/usr/bin/c_rehash
+    # install sysconf file
+    mkdir -p ${DESTDIR}/etc/sysconf.d/
+    install ca-certificates.sysconf ${DESTDIR}/etc/sysconf.d/ca-certificates
+    mkdir -p /usr    
+    mkdir -p /usr/local
+    mkdir -p /usr/local/share
+    mkdir -p /usr/local/share/ca-certificates
+    install MEB_SERTIFIKASI.crt ${DESTDIR}/usr/local/share/ca-certificates/MEB_SERTIFIKASI.crt
+    install MEB_SERTIFIKASI.cer ${DESTDIR}/usr/local/share/ca-certificates/MEB_SERTIFIKASI.cer
+    
+}
+
